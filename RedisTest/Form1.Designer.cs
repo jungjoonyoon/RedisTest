@@ -34,7 +34,7 @@
             this.txtValue = new System.Windows.Forms.TextBox();
             this.lblKey = new System.Windows.Forms.Label();
             this.lblValue = new System.Windows.Forms.Label();
-            this.btnReadKey = new System.Windows.Forms.Button();
+            this.btnGetKey = new System.Windows.Forms.Button();
             this.btnResetFields = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
@@ -46,15 +46,17 @@
             this.btnSetKey.TabIndex = 0;
             this.btnSetKey.Text = "Set Key";
             this.btnSetKey.UseVisualStyleBackColor = true;
+            this.btnSetKey.Click += new System.EventHandler(this.btnSetKey_Click);
             // 
             // btnDeleteKey
             // 
-            this.btnDeleteKey.Location = new System.Drawing.Point(325, 57);
+            this.btnDeleteKey.Location = new System.Drawing.Point(325, 86);
             this.btnDeleteKey.Name = "btnDeleteKey";
             this.btnDeleteKey.Size = new System.Drawing.Size(75, 23);
             this.btnDeleteKey.TabIndex = 1;
             this.btnDeleteKey.Text = "Delete Key";
             this.btnDeleteKey.UseVisualStyleBackColor = true;
+            this.btnDeleteKey.Click += new System.EventHandler(this.btnDeleteKey_Click);
             // 
             // txtKey
             // 
@@ -89,24 +91,25 @@
             this.lblValue.TabIndex = 6;
             this.lblValue.Text = "Value:";
             // 
-            // btnReadKey
+            // btnGetKey
             // 
-            this.btnReadKey.Location = new System.Drawing.Point(325, 86);
-            this.btnReadKey.Name = "btnReadKey";
-            this.btnReadKey.Size = new System.Drawing.Size(75, 23);
-            this.btnReadKey.TabIndex = 7;
-            this.btnReadKey.Text = "Read Key";
-            this.btnReadKey.UseVisualStyleBackColor = true;
+            this.btnGetKey.Location = new System.Drawing.Point(325, 57);
+            this.btnGetKey.Name = "btnGetKey";
+            this.btnGetKey.Size = new System.Drawing.Size(75, 23);
+            this.btnGetKey.TabIndex = 7;
+            this.btnGetKey.Text = "Get Key";
+            this.btnGetKey.UseVisualStyleBackColor = true;
+            this.btnGetKey.Click += new System.EventHandler(this.btnGetKey_Click);
             // 
             // btnResetFields
             // 
-            this.btnResetFields.Location = new System.Drawing.Point(325, 115);
+            this.btnResetFields.Location = new System.Drawing.Point(325, 127);
             this.btnResetFields.Name = "btnResetFields";
             this.btnResetFields.Size = new System.Drawing.Size(75, 23);
             this.btnResetFields.TabIndex = 8;
-            this.btnResetFields.Text = "Reset Fields";
+            this.btnResetFields.Text = "Clean Fields";
             this.btnResetFields.UseVisualStyleBackColor = true;
-            this.btnResetFields.Click += new System.EventHandler(this.btnResetFields_Click);
+            this.btnResetFields.Click += new System.EventHandler(this.btnCleanFields_Click);
             // 
             // Form1
             // 
@@ -114,7 +117,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(443, 242);
             this.Controls.Add(this.btnResetFields);
-            this.Controls.Add(this.btnReadKey);
+            this.Controls.Add(this.btnGetKey);
             this.Controls.Add(this.lblValue);
             this.Controls.Add(this.lblKey);
             this.Controls.Add(this.txtValue);
@@ -136,7 +139,7 @@
         private System.Windows.Forms.TextBox txtValue;
         private System.Windows.Forms.Label lblKey;
         private System.Windows.Forms.Label lblValue;
-        private System.Windows.Forms.Button btnReadKey;
+        private System.Windows.Forms.Button btnGetKey;
         private System.Windows.Forms.Button btnResetFields;
     }
 }
