@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+using StackExchange.Redis;
+
 namespace RedisTest
 {
     public partial class Form1 : Form
@@ -15,6 +17,17 @@ namespace RedisTest
         public Form1()
         {
             InitializeComponent();
+        }
+
+        private void btnResetFields_Click(object sender, EventArgs e)
+        {
+            ResetFields();
+        }
+
+        private void ResetFields()
+        {
+            txtKey.Text = "";
+            txtValue.Text = "";
         }
     }
 }
