@@ -22,8 +22,8 @@ namespace RedisTest
         private void InitComponents()
         {
             REDIS_KEY_PREFIX = ConfigurationManager.AppSettings["RedisKeyPrefix"];            
-            int redis_key_days_expire = int.Parse(ConfigurationManager.AppSettings["RedisKeyDaysExpire"]);
-            tsExpire = TimeSpan.FromDays(redis_key_days_expire);
+            int redisKeyDaysExpire = int.Parse(ConfigurationManager.AppSettings["RedisKeyDaysExpire"]);
+            tsExpire = TimeSpan.FromDays(redisKeyDaysExpire);
 
             ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(ConfigurationManager.AppSettings["RedisConnectionString"]);
             redis_db = redis.GetDatabase();
@@ -41,8 +41,8 @@ namespace RedisTest
 
         private void CleanFields()
         {
-            txtKey.Text = "";
-            txtValue.Text = "";
+            txtKey.Text = String.Empty;
+            txtValue.Text = String.Empty;
         }
 
         private void btnSetKey_Click(object sender, EventArgs e)
@@ -50,16 +50,34 @@ namespace RedisTest
             string key = txtKey.Text;
             string value = txtValue.Text;
 
+            string errorMessage = null;
+            bool isValid = IsValid(key, out errorMessage);
+            if (!isValid)
+            {
+                MessageBox.Show(errorMessage);
+                return;
+            }
+
             //redis_db.StringSet(REDIS_KEY_PREFIX + key, value);
             //redis_db.KeyExpire(REDIS_KEY_PREFIX + key, tsExpire);
-
-            redis_db.StringSet(REDIS_KEY_PREFIX + key, value, tsExpire);
+            string redisKey = GetRedisKey(REDIS_KEY_PREFIX, key);
+            bool redisResult = redis_db.StringSet(redisKey, value, tsExpire);
         }
 
         private void btnGetKey_Click(object sender, EventArgs e)
         {
             string key = txtKey.Text;
-            string value = redis_db.StringGet(REDIS_KEY_PREFIX + key);
+
+            string errorMessage = null;
+            bool isValid = IsValid(key, out errorMessage);
+            if (!isValid)
+            {
+                MessageBox.Show(errorMessage);
+                return;
+            }
+
+            string redisKey = GetRedisKey(REDIS_KEY_PREFIX, key);
+            string value = redis_db.StringGet(redisKey);
 
             txtValue.Text = value;
         }
@@ -67,7 +85,34 @@ namespace RedisTest
         private void btnDeleteKey_Click(object sender, EventArgs e)
         {
             string key = txtKey.Text;
-            redis_db.KeyDelete(REDIS_KEY_PREFIX + key);
+
+            string errorMessage = null;
+            bool isValid = IsValid(key, out errorMessage);
+            if (!isValid)
+            {
+                MessageBox.Show(errorMessage);
+                return;
+            }
+
+            string redisKey = GetRedisKey(REDIS_KEY_PREFIX, key);
+            bool redisResult = redis_db.KeyDelete(redisKey);
+        }
+
+        private string GetRedisKey(string keyPrefix, string keyName)
+        {
+            return REDIS_KEY_PREFIX + keyName;
+        }
+
+        private bool IsValid(string text, out string errorMessage)
+        {
+            errorMessage = null;
+            if (String.IsNullOrWhiteSpace(text))
+            {
+                errorMessage = "Empty string.";
+                return false;
+            }
+
+            return true;
         }
     }
 }
