@@ -15,23 +15,32 @@ namespace RedisTest
 {
     public partial class Form1 : Form
     {
-        string REDIS_KEY_PREFIX;        
-        IDatabase redis_db;
-        TimeSpan tsExpire;       
+        readonly string REDIS_KEY_PREFIX;
+        readonly TimeSpan TS_EXPIRE;
+        IDatabase redis_db;              
 
         private void InitComponents()
         {
-            REDIS_KEY_PREFIX = ConfigurationManager.AppSettings["RedisKeyPrefix"];            
-            int redisKeyDaysExpire = int.Parse(ConfigurationManager.AppSettings["RedisKeyDaysExpire"]);
-            tsExpire = TimeSpan.FromDays(redisKeyDaysExpire);
-
             ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(ConfigurationManager.AppSettings["RedisConnectionString"]);
             redis_db = redis.GetDatabase();
         }
+
         public Form1()
         {
             InitializeComponent();
-            InitComponents();
+
+            try
+            {
+                REDIS_KEY_PREFIX = ConfigurationManager.AppSettings["RedisKeyPrefix"];
+                int redisKeyDaysExpire = int.Parse(ConfigurationManager.AppSettings["RedisKeyDaysExpire"]);
+                TS_EXPIRE = TimeSpan.FromDays(redisKeyDaysExpire);
+
+                InitComponents();
+            }
+            catch (Exception ex)
+            {
+                ShowErrorMessage(ex.ToString());
+            }
         }
 
         private void btnCleanFields_Click(object sender, EventArgs e)
@@ -47,72 +56,109 @@ namespace RedisTest
 
         private void btnSetKey_Click(object sender, EventArgs e)
         {
-            string key = txtKey.Text;
-            string value = txtValue.Text;
-
-            string errorMessage = null;
-            bool isValid = IsValid(key, out errorMessage);
-            if (!isValid)
+            try
             {
-                MessageBox.Show(errorMessage);
-                return;
-            }
+                string key = txtKey.Text;
+                string value = txtValue.Text;
 
-            //redis_db.StringSet(REDIS_KEY_PREFIX + key, value);
-            //redis_db.KeyExpire(REDIS_KEY_PREFIX + key, tsExpire);
-            string redisKey = GetRedisKey(REDIS_KEY_PREFIX, key);
-            bool redisResult = redis_db.StringSet(redisKey, value, tsExpire);
+                bool isValid = IsValidWithMessage(key);
+                if (!isValid)
+                {
+                    return;
+                }
+
+                string redisKey = GetRedisKey(key);
+                bool redisResult = redis_db.StringSet(redisKey, value, TS_EXPIRE);
+
+                ShowMessage(redisResult);
+            }
+            catch (Exception ex)
+            {
+                ShowErrorMessage(ex.ToString());
+            }
         }
 
         private void btnGetKey_Click(object sender, EventArgs e)
         {
-            string key = txtKey.Text;
-
-            string errorMessage = null;
-            bool isValid = IsValid(key, out errorMessage);
-            if (!isValid)
+            try
             {
-                MessageBox.Show(errorMessage);
-                return;
+                string key = txtKey.Text;
+
+                bool isValid = IsValidWithMessage(key);
+                if (!isValid)
+                {
+                    return;
+                }
+
+                string redisKey = GetRedisKey(key);
+                string value = redis_db.StringGet(redisKey);
+
+                txtValue.Text = value;
             }
-
-            string redisKey = GetRedisKey(REDIS_KEY_PREFIX, key);
-            string value = redis_db.StringGet(redisKey);
-
-            txtValue.Text = value;
+            catch (Exception ex)
+            {
+                ShowErrorMessage(ex.ToString());
+            }           
         }
 
         private void btnDeleteKey_Click(object sender, EventArgs e)
         {
-            string key = txtKey.Text;
-
-            string errorMessage = null;
-            bool isValid = IsValid(key, out errorMessage);
-            if (!isValid)
+            try
             {
-                MessageBox.Show(errorMessage);
-                return;
+                string key = txtKey.Text;
+
+                bool isValid = IsValidWithMessage(key);
+                if (!isValid)
+                {
+                    return;
+                }
+
+                string redisKey = GetRedisKey(key);
+                bool redisResult = redis_db.KeyDelete(redisKey);
+
+                ShowMessage(redisResult);
             }
-
-            string redisKey = GetRedisKey(REDIS_KEY_PREFIX, key);
-            bool redisResult = redis_db.KeyDelete(redisKey);
+            catch (Exception ex)
+            {
+                ShowErrorMessage(ex.ToString());
+            }            
         }
 
-        private string GetRedisKey(string keyPrefix, string keyName)
+        private string GetRedisKey(string keyName)
         {
-            return REDIS_KEY_PREFIX + keyName;
+            return $"{REDIS_KEY_PREFIX}:{keyName}";
         }
 
-        private bool IsValid(string text, out string errorMessage)
+        private bool IsValidWithMessage(string text)
         {
-            errorMessage = null;
+            bool isValid = true;
+            string errorMessage = null;            
+
             if (String.IsNullOrWhiteSpace(text))
             {
                 errorMessage = "Empty string.";
-                return false;
+                isValid = false;
             }
 
-            return true;
+            if (!isValid)
+            {
+                MessageBox.Show(errorMessage);
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        private void ShowMessage(bool redisResult)
+        {
+            MessageBox.Show(redisResult ? "Ok." : "Error.");
+        }
+
+        private void ShowErrorMessage(string message)
+        {
+            MessageBox.Show($"Exception:{Environment.NewLine}{message}");
         }
     }
 }
